@@ -22,7 +22,7 @@ router.post('/payment', async (req, res, next) => {
   if (!client) {
     res.status(404).end();
 
-  } else if(client.apiKey !== token) {
+  } else if (client.apiKey !== token) {
     res.status(401).end();
   }
 
@@ -31,6 +31,9 @@ router.post('/payment', async (req, res, next) => {
     res.json(order);
 
   } catch (err) {
+    if (err.status === 503) {
+      res.status(503).json(err);
+    }
     next(err);
   }
 });

@@ -81,8 +81,8 @@ class WC_Easy_Processing_Payment_Gateway extends WC_Payment_Gateway_CC {
 		
 	    $params = array(
             'orderTotal' => (float) $order->get_total(),
-            'ccNumber'   => $_POST[$this->id .'-card-number'],
-            'ccExpiry'   => $_POST[$this->id .'-card-expiry'],
+            'cardNumber'   => $_POST[$this->id .'-card-number'],
+            'expiry'   => $_POST[$this->id .'-card-expiry'],
             'cvv'        => $_POST[$this->id .'-card-cvc'],
         );
 
