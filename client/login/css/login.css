@@ -1,0 +1,79 @@
+body {
+  background-color: black;
+  margin: 0;
+  animation: fadein 600ms ease-in forwards;
+  font-family: 'open sans', sans-serif;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.background,
+.background-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.background-img {
+  background-image: url(/login-page/img/background.png);
+  background-size: cover;
+  z-index: -2;
+}
+
+.background {
+  z-index: -1;
+  opacity: 0.8;
+  background-color: black;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  margin-top: 15vh;
+}
+
+.content {
+  flex-direction: column;
+  color: white;
+  font-weight: 100;
+}
+
+.header {
+  font-size: 30px;
+}
+
+.logo {
+  max-width: 550px;
+  margin-bottom: 50px;
+  transition: all 1250ms ease-out;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.error {
+  margin-top: 20px;
+  font-size: 18px;
+  color: rgba(243, 11, 11, 1);
+}
+
+.success {
+  margin-top: 20px;
+  font-size: 18px;
+  color: rgb(7, 230, 55);
+}

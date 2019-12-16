@@ -1,0 +1,1 @@
+exports.stripe = require('./stripe');
