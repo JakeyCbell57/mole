@@ -18,9 +18,10 @@ async function processOrder(data) {
   for (const processor of processors) {
     const type = processorTypes.find(typeById(processor.id))
     const gateway = ProcessorTypes[type.codeName];
-    const url = processor.url;
+    const url = formatUrl(processor.url, type.codeName);
+    const apiKey = processor.apiKey;
 
-    const order = await safelyProcessOrder({ ...data, exipryMonth, expiryYear }, gateway);
+    const order = await safelyProcessOrder({ ...data, exipryMonth, expiryYear, apiKey }, gateway, url);
 
     if (order.status !== ResponseCodes.FATAL) {
       saveSuccessful(order, data, processor.id);
@@ -54,9 +55,9 @@ async function saveSuccessful(order, data, processorId) {
   }
 }
 
-async function safelyProcessOrder(data, gateway) {
+async function safelyProcessOrder(data, gateway, url) {
   try {
-    const order = await gateway.processOrder(data);
+    const order = await gateway.processOrder(url, data);
     return order;
 
   } catch (err) {
@@ -66,8 +67,8 @@ async function safelyProcessOrder(data, gateway) {
   }
 }
 
-function formatUrl(url) {
-  return url.replace(/(^http:\/\/|^https:\/\/)/, 'https://').replace(/\/+$/, '') + ENDPOINT_BASE;
+function formatUrl(url, type) {
+  return url.replace(/(^http:\/\/|^https:\/\/)/, 'https://').replace(/\/+$/, '') + `${ENDPOINT_BASE}/${type}`;
 }
 
 function formatExpiry(expiry) {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Row, Col, Card, Table, Form, Button} from 'react-bootstrap';
+import { Row, Col, Card, Table, Form, Button } from 'react-bootstrap';
 import api from '../api';
 
 const rightAlign = {
@@ -20,16 +20,14 @@ export default class ProcessorsView extends Component {
       processors: [],
       processorTypes: [],
       name: '',
-      apiId: '',
-      apiKey: '',
+      url: '',
       processorType: '',
-      currentParams: []
     }
   }
 
   componentDidMount = () => this.getData();
 
-  updateInput = event => this.setState({ [event.target.name]: event.target.value })
+  updateInput = event => this.setState({ [event.target.name]: event.target.value });
 
   getData = () => {
     api.get('/processors')
@@ -44,17 +42,9 @@ export default class ProcessorsView extends Component {
   addProcessor = (e) => {
     e.preventDefault();
 
-    const { name, apiId, apiKey, processorType } = this.state;
+    const { name, url, processorType } = this.state;
 
-    if(!name) {
-      return alert('Please enter a name');
-    }
-
-    if(!processorType) {
-      return alert('Please select a processor type');
-    }
-
-    api.post('/processors', { name, apiId, apiKey, processorType })
+    api.post('/processors', { name, url, processorType })
       .then(this.getData)
       .catch(console.error)
   }
@@ -62,9 +52,12 @@ export default class ProcessorsView extends Component {
   renderProcessors = processors => processors.map(this.renderProcessor)
 
   renderProcessor = processor => (
-    <tr key={processor.id+processor.name} className="unread">
+    <tr key={processor.id + processor.name} className="unread">
       <td>
         <h6 className="mb-1">{processor.name}</h6>
+      </td>
+      <td>
+        <h6 className="mb-1">{processor.url}</h6>
       </td>
       <td style={smallCol}>
         <h6 className="mb-1">{processor.healthy ? 'yes' : 'no'}</h6>
@@ -82,7 +75,7 @@ export default class ProcessorsView extends Component {
   deleteProcessor = (id, name) => () => {
     const confirmed = window.confirm('Are you sure you want to delete client ' + name + '?')
 
-    if(confirmed) {
+    if (confirmed) {
       api.delete(`/processors/${id}`)
         .then(this.getData)
         .catch(console.error)
@@ -96,22 +89,7 @@ export default class ProcessorsView extends Component {
   }
 
   updateProcessorSelect = (e) => {
-    const value = e.target.value;
-
-    this.setState({ processorType: value })
-    const { processorTypes } = this.state;
-
-    console.log(processorTypes)
-    const currentType = processorTypes.find(type => type.id === parseInt(value))
-
-    console.log(currentType)
-
-    if(currentType) {
-      this.setState({ currentParams: currentType.parameters })
-    } else {
-      this.setState({ currentParams: [] })
-
-    }
+    this.setState({ processorType: e.target.value })
   }
 
   renderProcessorTypes = types => types.map(type => (
@@ -119,72 +97,64 @@ export default class ProcessorsView extends Component {
   ))
 
   render() {
-    const { name, apiId, apiKey, processors, processorTypes, currentParams } = this.state;
+    const { name, url, processors, processorTypes, currentParams } = this.state;
 
     return (
       <div>
         <Row>
           <Col xs={12} sm={12} md={6} lg={6} xl={6}>
             <Card className='Recent-Users'>
-                <Card.Header>
-                  <Card.Title as='h5'>Add Processor</Card.Title>
-                </Card.Header>
-                <Card.Body className='px-10 py-10'>
-                    <Form onSubmit={this.addProcessor}>
-                      <Form.Group>
-                          <Form.Control onChange={this.updateProcessorSelect} as="select" className="mb-3" required>
-                            <option value='' selected disabled>Select processor type</option>
-                            { this.renderProcessorTypes(processorTypes) }
-                          </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="name">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter a processor name" value={name} required/>
-                        </Form.Group>
-  
-                        { currentParams.includes('apiId') && (
-                          <Form.Group controlId="apiId">
-                            <Form.Label>Api Id</Form.Label>
-                            <Form.Control onChange={this.updateInput} name='apiId' type="text" placeholder="Enter processor's api id" value={apiId} required/>
-                          </Form.Group>
-                        )}
-  
-                        { currentParams.includes('apiKey') && (
-                          <Form.Group controlId="apiKey">
-                            <Form.Label>Api Key</Form.Label>
-                            <Form.Control onChange={this.updateInput} name='apiKey' type="text" placeholder="Enter processor's api key" value={apiKey} required/>
-                          </Form.Group>
-                        )}
-  
-                        <Button variant="primary" type='submit'>
-                          Add Processor
+              <Card.Header>
+                <Card.Title as='h5'>Add Processor</Card.Title>
+              </Card.Header>
+              <Card.Body className='px-10 py-10'>
+                <Form onSubmit={this.addProcessor}>
+                  <Form.Group>
+                    <Form.Control onChange={this.updateProcessorSelect} as="select" className="mb-3" required>
+                      <option value='' selected disabled>Select processor type</option>
+                      {this.renderProcessorTypes(processorTypes)}
+                    </Form.Control>
+                  </Form.Group>
+                  <Form.Group controlId="name">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter a processor name" value={name} required />
+                  </Form.Group>
+
+                  <Form.Group controlId="url">
+                    <Form.Label>Bank Page Url</Form.Label>
+                    <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter URL of associated bank page" value={url} required />
+                  </Form.Group>
+
+                  <Button variant="primary" type='submit'>
+                    Add Processor
                       </Button>
-                    </Form>
-                </Card.Body>
+                </Form>
+              </Card.Body>
             </Card>
           </Col>
         </Row>
         <Row>
           <Col md={12} lg={12} xl={12}>
             <Card className='Recent-Users'>
-                <Card.Header>
-                    <Card.Title as='h5'>Current Processors</Card.Title>
-                </Card.Header>
-                <Card.Body className='px-0 py-0'>
-                    <Table responsive hover>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Connected</th>
-                          <th>Type</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                        <tbody>
-                          { this.renderProcessors(processors) }
-                        </tbody>
-                    </Table>
-                </Card.Body>
+              <Card.Header>
+                <Card.Title as='h5'>Current Processors</Card.Title>
+              </Card.Header>
+              <Card.Body className='px-0 py-0'>
+                <Table responsive hover>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Url</th>
+                      <th>Connected</th>
+                      <th>Type</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.renderProcessors(processors)}
+                  </tbody>
+                </Table>
+              </Card.Body>
             </Card>
           </Col>
         </Row>

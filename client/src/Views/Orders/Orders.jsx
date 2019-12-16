@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Row, Col, Card, Table, Button} from 'react-bootstrap';
+import { Row, Col, Card, Table, Button } from 'react-bootstrap';
 import api from '../../api';
 import qs from 'querystring';
 import ReactTable from 'react-table-v6';
@@ -35,12 +35,12 @@ export default class OrdersView extends Component {
   getData = (start, end) => {
     api.get(`/orders?${qs.stringify({ start, end })}`)
       .then(orders => {
-        if(orders) {
+        if (orders) {
           this.setState({ orders })
           const totalProcessed = orders.reduce((acc, cur) => acc + parseFloat(cur.orderTotal), 0);
           const totalFees = orders.reduce((acc, cur) => acc + parseFloat(cur.processingFee), 0);
           const totalTransactions = orders.length
-          this.setState({ 
+          this.setState({
             orders,
             totalProcessed,
             totalFees,
@@ -66,7 +66,6 @@ export default class OrdersView extends Component {
       <td>{processor.name}</td>
       <td>{processor.type}</td>
       <td>{processor.balance && ('$' + processor.balance)}</td>
-      <td>{processor.fees && ('$' + processor.fees)}</td>
       <td>{processor.transactions}</td>
     </tr>
   ))
@@ -76,7 +75,6 @@ export default class OrdersView extends Component {
       <th scope="row">{i + 1}</th>
       <td>{client.name}</td>
       <td>{client.balance && ('$' + client.balance)}</td>
-      <td>{client.fees && ('$' + client.fees)}</td>
       <td>{client.transactions}</td>
     </tr>
   ))
@@ -94,7 +92,7 @@ export default class OrdersView extends Component {
                 <Card.Title as="h5">Processed</Card.Title>
               </Card.Header>
               <Card.Body>
-              <Card.Title as="h4" style={{...metric, color: '#24b017'}}>{totalProcessed && '$' + totalProcessed.toFixed(2)}</Card.Title>
+                <Card.Title as="h4" style={{ ...metric, color: '#24b017' }}>{totalProcessed && '$' + totalProcessed.toFixed(2)}</Card.Title>
               </Card.Body>
             </Card>
           </Col>
@@ -104,7 +102,7 @@ export default class OrdersView extends Component {
                 <Card.Title as="h5">Processing Fees</Card.Title>
               </Card.Header>
               <Card.Body>
-              <Card.Title as="h4" style={{...metric, color: '#e82323'}}>{totalFees && '$' + totalFees.toFixed(2)}</Card.Title>
+                <Card.Title as="h4" style={{ ...metric, color: '#e82323' }}>{totalFees && '$' + totalFees.toFixed(2)}</Card.Title>
               </Card.Body>
             </Card>
           </Col>
@@ -114,7 +112,7 @@ export default class OrdersView extends Component {
                 <Card.Title as="h5">Transactions</Card.Title>
               </Card.Header>
               <Card.Body>
-              <Card.Title as="h4" style={metric}>{totalTransactions}</Card.Title>
+                <Card.Title as="h4" style={metric}>{totalTransactions}</Card.Title>
               </Card.Body>
             </Card>
           </Col>
@@ -123,24 +121,23 @@ export default class OrdersView extends Component {
           <Col>
             <Card>
               <Card.Header>
-                  <Card.Title as="h5">By Processor</Card.Title>
+                <Card.Title as="h5">By Processor</Card.Title>
               </Card.Header>
               <Card.Body>
-                  <Table responsive hover>
-                      <thead>
-                      <tr>
-                          <th>#</th>
-                          <th>Name</th>
-                          <th>Type</th>
-                          <th>Processed</th>
-                          <th>Processing Fees</th>
-                          <th>Transactions</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                        { this.renderByProcessor(byProcessors) }
-                      </tbody>
-                  </Table>
+                <Table responsive hover>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Processed</th>
+                      <th>Transactions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.renderByProcessor(byProcessors)}
+                  </tbody>
+                </Table>
               </Card.Body>
             </Card>
           </Col>
@@ -150,23 +147,22 @@ export default class OrdersView extends Component {
           <Col>
             <Card>
               <Card.Header>
-                  <Card.Title as="h5">By Client</Card.Title>
+                <Card.Title as="h5">By Client</Card.Title>
               </Card.Header>
               <Card.Body>
-                  <Table responsive hover>
-                      <thead>
-                      <tr>
-                          <th>#</th>
-                          <th>Name</th>
-                          <th>Processed</th>
-                          <th>Processing Fees</th>
-                          <th>Transactions</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                        { this.renderByClient(byClients) }
-                      </tbody>
-                  </Table>
+                <Table responsive hover>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Processed</th>
+                      <th>Transactions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.renderByClient(byClients)}
+                  </tbody>
+                </Table>
               </Card.Body>
             </Card>
           </Col>
@@ -175,11 +171,11 @@ export default class OrdersView extends Component {
         <Row>
           <Col>
             <Card>
-              <Card.Header style={{display: 'flex', justifyContent: 'space-between'}}>
+              <Card.Header style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Card.Title as="h5">Orders</Card.Title>
                 <Button size='sm' variant={aggregate ? 'outline-info' : 'info'} onClick={this.toggleAggregation(aggregate)}>{aggregate ? 'Flatten' : 'Aggregate'}</Button>
               </Card.Header>
-              <Card.Body style={{padding: '0'}}>
+              <Card.Body style={{ padding: '0' }}>
                 <ReactTable
                   defaultPageSize={10}
                   pivotBy={aggregate ? ["clientName", "processorName"] : []}

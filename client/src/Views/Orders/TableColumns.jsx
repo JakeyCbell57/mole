@@ -1,7 +1,7 @@
 import React from 'react';
 import * as Time from '../../utils/time';
 
-const alignRight ={
+const alignRight = {
   textAlign: 'right'
 };
 
@@ -25,15 +25,6 @@ const columns = [
     id: "orderTotal",
     style: alignRight,
     accessor: d => parseFloat(d.orderTotal).toFixed(2),
-    Cell: row => (<span>${row.value}</span>),
-    aggregate: formatDecimals,
-    Aggregated: row => (<span>${row.value}</span>)
-  },
-  {
-    Header: "Processing Fee",
-    id: "processingFee",
-    style: alignRight,
-    accessor: d => parseFloat(d.processingFee).toFixed(2),
     Cell: row => (<span>${row.value}</span>),
     aggregate: formatDecimals,
     Aggregated: row => (<span>${row.value}</span>)
