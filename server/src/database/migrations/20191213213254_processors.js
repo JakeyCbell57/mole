@@ -1,4 +1,4 @@
-exports.up = async function(knex) {
+exports.up = async function (knex) {
 
   await knex.schema.createTable('processor_types', table => {
     table.increments('id')
@@ -10,7 +10,7 @@ exports.up = async function(knex) {
   await knex.schema.createTable('processors', table => {
     table.increments('id')
     table.string('name')
-    table.string('apiId')
+    table.string('url')
     table.string('apiKey')
     table.boolean('enabled').defaultTo(true)
     table.boolean('healthy').defaultTo(true)
@@ -19,7 +19,7 @@ exports.up = async function(knex) {
   })
 };
 
-exports.down = async function(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTable('processors')
   await knex.schema.dropTable('processor_types')
 };
