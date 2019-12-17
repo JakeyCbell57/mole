@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const fs = require('fs')
 const archiver = require('archiver')
 
+
 const table = 'clients';
 
 function getByClientKey(clientKey) {
@@ -46,27 +47,29 @@ function generateKey() {
 function getTextFile(id) {
   return database.select().from(table).where('id', id).first();
 }
-function createTextFile(data) {
-  let text = "ClientKey " + data.clientKey + "\n" + "ClientSecret" + data.clientSecret
-
-  const txtfile = fs.writeFile("server/src/temp/ClientInfo.txt", text, (err) => {
-    return txtfile;
+function createTextFile(data, id, url) {
+  let text = "ClientKey: " + data.clientKey + "\n" + "ClientSecret: " + data.clientSecret + "\n" + "FROM URL: " + url
+  let filename = "/home/billy/Projects/mole/server/src/temp/ClientInfo" + "_" + id + ".txt"
+  const txtfile = fs.writeFile(filename, text, (err) => {
     if (err) { throw err }
   });
 }
-function createZipFile(data) {
+
+function createZipFile(id) {
+
   let archive = archiver('zip', {
     gzip: true,
     zlib: { level: 9 }
   })
-  let output = "server/src/temp/onboard.zip"
+  let output = fs.createWriteStream("/home/billy/Projects/mole/server/src/temp/onboard_" + id + ".zip")
+  let textFile = "/home/billy/Projects/mole/server/src/temp/ClientInfo_" + id + ".txt";
 
   archive.pipe(output)
-  archive.file(data);
-  archive.file('server/src/wordpress/custom-lb-payment-api.zip')
+  archive.file(textFile, { name: 'id.txt' });
+  archive.file('/home/billy/Projects/mole/server/src/wordpress/lb-payment-api.zip', { name: 'lb-payment-api.zip' })
   archive.finalize();
 
-  //https://stackoverflow.com/questions/18142129/how-to-convert-multiple-files-to-compressed-zip-file-using-node-js
+  return ("/home/billy/Projects/mole/server/src/temp/onboard_" + id + ".zip")
 
 }
 

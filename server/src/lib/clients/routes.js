@@ -79,12 +79,14 @@ router.patch('/clients/:id/resetCredentials', async (req, res, next) => {
 router.post('/clients/:id/onboard', async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { url } = req.body;
 
     const textfile = await Clients.getTextFile(id);
-    const createFile = await Clients.createTextFile(textfile);
-    const createZip = await Clients.createZipFile(createFile);
+    const createFile = await Clients.createTextFile(textfile, id, url);
 
-    res.end();
+    const createZip = await Clients.createZipFile(id);
+    return res.send(createZip)
+    //res.end();
 
   } catch (err) {
     next(err)

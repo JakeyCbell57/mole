@@ -89,10 +89,11 @@ export default class ClientsView extends Component {
     }
   }
 
-  downloadCredentials = clientId => {
+  downloadCredentials = () => {
+    const clientId = this.state.editClientId;
     api.post(`/clients/${clientId}/onboard`, { url: window.location.hostname })
       .then(response => {
-        alert(response)
+
       })
       .catch(console.error)
   }
@@ -152,7 +153,6 @@ export default class ClientsView extends Component {
               </Card.Header>
               <Card.Body className='px-10 py-10'>
                 <Form onSubmit={this.addClient}>
-<<<<<<< HEAD
                   <Form.Group controlId="formBasicEmail">
                     <Form.Label>Name</Form.Label>
                     <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter client name" value={name} required />
@@ -203,80 +203,6 @@ export default class ClientsView extends Component {
           </Card>
         </Collapse>
 
-=======
-                  <Form.Group controlId="name">
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter client name" value={name} required />
-                  </Form.Group>
-                  <Form.Group controlId="url">
-                    <Form.Label>URL</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Prepend>
-                        <InputGroup.Text style={light}>https://</InputGroup.Text>
-                      </InputGroup.Prepend>
-                      <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter client URL" value={url} required />
-                    </InputGroup>
-                  </Form.Group>
-                  <Form.Group controlId="processingFee">
-                    <Form.Label>Processing Fee</Form.Label>
-                    <InputGroup>
-                      <Form.Control onChange={this.updateInput} name='processingFee' type="tel" placeholder="Enter client processing fee" value={processingFee} required />
-                      <InputGroup.Append>
-                        <InputGroup.Text style={light}>%</InputGroup.Text>
-                      </InputGroup.Append>
-                    </InputGroup>
-                  </Form.Group>
-                  <Button variant="primary" type='submit'>
-                    Add Client
-                  </Button>
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <Collapse isOpened={this.state.editing}>
-              <Card>
-                <Card.Header>
-                  <Card.Title>Edit Client</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                  <Form onSubmit={this.editClient}>
-                    <Form.Group controlId="editName">
-                      <Form.Label>Name</Form.Label>
-                      <Form.Control onChange={this.updateInput} name='editName' type="text" placeholder="Enter client name" value={editName} required />
-                    </Form.Group>
-                    <Form.Group controlId="editUrl">
-                      <Form.Label>URL</Form.Label>
-                      <Form.Control onChange={this.updateInput} name='editUrl' type="text" placeholder="Enter client URL" value={editUrl} required />
-                    </Form.Group>
-                    <Form.Group controlId="editProcessingFee">
-                      <Form.Label>Processing Fee</Form.Label>
-                      <Form.Control onChange={this.updateInput} name='editProcessingFee' type="tel" placeholder="Enter client processing fee" value={editProcessingFee} required />
-                    </Form.Group>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <div>
-                        <Button variant="primary" type='submit'>
-                          Edit Client
-                      </Button>
-                        <Button variant="warning" onClick={this.cancelEdit}>
-                          Cancel
-                      </Button>
-                      </div>
-                      <Button variant='danger' onClick={this.resetCredentials}>
-                        Reset Credentials
-                  </Button>
-                    </div>
-                  </Form>
-                </Card.Body>
-              </Card>
-            </Collapse>
-          </Col>
-        </Row>
-
->>>>>>> 77fa7ddf6c071c5440d7c530155020e569df4616
         <Row>
           <Col md={12} lg={12} xl={12}>
             <Card className='Recent-Users'>
@@ -289,11 +215,7 @@ export default class ClientsView extends Component {
                     <tr>
                       <th>Name</th>
                       <th>URL</th>
-<<<<<<< HEAD
                       <th></th>
-=======
-                      <th>Processing Fee</th>
->>>>>>> 77fa7ddf6c071c5440d7c530155020e569df4616
                       <th></th>
                     </tr>
                   </thead>
