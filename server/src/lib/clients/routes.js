@@ -29,8 +29,8 @@ router.get('/clients/metrics', async (req, res, next) => {
 
 router.post('/clients', async (req, res, next) => {
   try {
-    const { name } = req.body;
-    await Clients.save(name)
+    const { name, url, processingFee } = req.body;
+    await Clients.save(name, url, processingFee);
     res.end();
     
   } catch (err) {
@@ -53,10 +53,10 @@ router.patch('/clients/:id/enabled', async (req, res, next) => {
 
 router.patch('/clients/:id', async (req, res, next) => {
   try {
-    const { name, url } = req.body;
+    const { name, url, processingFee } = req.body;
     const { id } = req.params;
 
-    await Clients.update(id, { name, url });
+    await Clients.update(id, { name, url, processingFee });
     res.end();
     
   } catch (err) {

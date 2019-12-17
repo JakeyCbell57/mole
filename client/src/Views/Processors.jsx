@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Table, Form, Button } from 'react-bootstrap';
+import { Row, Col, Card, Table, Form, Button, InputGroup } from 'react-bootstrap';
 import api from '../api';
 import { Collapse } from 'react-collapse';
+import { ToastContainer } from 'react-toastify';
 
 const rightAlign = {
   display: 'flex',
   justifyContent: 'flex-end'
-}
+};
 
 const smallCol = {
   maxWidth: '200px'
-}
+};
+
+const light = {
+  color: '#495057',
+  fontSize: '0.9rem'
+};
 
 export default class ProcessorsView extends Component {
 
@@ -56,6 +62,20 @@ export default class ProcessorsView extends Component {
       .catch(console.error)
   }
 
+  authenticate = id => () => {
+    api.get(`/processors/${id}/ping`)
+      .then(success => {
+        this.getData();
+        if(success) {
+          alert('Processor authenticated successfully');
+        } else {
+          alert('Processor failed to authenticate.');
+        }
+      })
+      .catch(console.error)
+  }
+
+
   resetAddProcessorForm = () => this.setState({ name: '', url: '', processorType: '' })
 
   renderProcessors = processors => processors.map(this.renderProcessor)
@@ -75,6 +95,7 @@ export default class ProcessorsView extends Component {
         <h6 className="mb-1">{processor.type}</h6>
       </td>
       <td style={rightAlign}>
+        <Button size='sm' variant="info" onClick={this.authenticate(processor.id)}>Authenticate</Button>
         <Button size='sm' variant="warning" onClick={this.edit(processor)}>Edit</Button>
         <Button size='sm' variant={processor.enabled ? 'success' : 'warning'} onClick={this.toggleEnabled(processor.id, processor.enabled)}>{processor.enabled ? 'Enabled' : 'Disabled'}</Button>
         <Button size='sm' variant="danger" onClick={this.deleteProcessor(processor.id, processor.name)}>Delete</Button>
@@ -123,7 +144,7 @@ export default class ProcessorsView extends Component {
   ))
 
   render() {
-    const { name, url, processors, processorTypes, currentParams, editName, editUrl } = this.state;
+    const { name, url, processors, processorTypes, editName, editUrl } = this.state;
 
     return (
       <div>
@@ -148,7 +169,12 @@ export default class ProcessorsView extends Component {
 
                   <Form.Group controlId="url">
                     <Form.Label>Bank Page Url</Form.Label>
-                    <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter URL of associated bank page" value={url} required />
+                    <InputGroup>
+                      <InputGroup.Prepend>
+                        <InputGroup.Text style={light}>https://</InputGroup.Text>
+                      </InputGroup.Prepend>
+                      <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter URL of associated bank page" value={url} required />
+                    </InputGroup>
                   </Form.Group>
 
                   <Button variant="primary" type='submit'>

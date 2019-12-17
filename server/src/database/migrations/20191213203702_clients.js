@@ -6,6 +6,7 @@ exports.up = function(knex) {
     table.string('url')
     table.string('clientKey')
     table.string('clientSecret')
+    table.decimal('processingFee', 8, 4).defaultTo(0)
     table.boolean('enabled').defaultTo(true)
     table.boolean('archived').defaultTo(false)
   });

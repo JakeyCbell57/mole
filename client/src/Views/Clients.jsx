@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Table, Form, Button } from 'react-bootstrap';
+import { Row, Col, Card, Table, Form, Button, InputGroup } from 'react-bootstrap';
 import api from '../api';
 import { Collapse } from 'react-collapse';
 
 const rightAlign = {
   display: 'flex',
   justifyContent: 'flex-end'
+};
+
+const light = {
+  color: '#495057',
+  fontSize: '0.9rem',
 };
 
 export default class ClientsView extends Component {
@@ -17,10 +22,12 @@ export default class ClientsView extends Component {
       clients: [],
       name: '',
       url: '',
+      processingFee: '',
       editing: false,
       editName: '',
       editUrl: '',
-      editClientId: ''
+      editClientId: '',
+      editProcessingFee: ''
     }
   }
 
@@ -37,29 +44,29 @@ export default class ClientsView extends Component {
   addClient = (e) => {
     e.preventDefault();
 
-    const { name, url } = this.state;
+    const { name, url, processingFee } = this.state;
 
-    api.post('/clients', { name, url })
+    api.post('/clients', { name, url, processingFee })
       .then(() => {
-        this.getData()
-        this.resetAddClientForm()
+        this.getData();
+        this.resetAddClientForm();
       })
       .catch(console.error)
   }
 
   editClient = (e) => {
     e.preventDefault();
-    const { editClientId, editName, editUrl } = this.state;
+    const { editClientId, editName, editUrl, editProcessingFee } = this.state;
 
-    api.patch(`/clients/${editClientId}`, { name: editName, url: editUrl })
+    api.patch(`/clients/${editClientId}`, { name: editName, url: editUrl, processingFee: editProcessingFee })
       .then(() => {
-        this.cancelEdit()
-        this.getData()
+        this.getData();
+        this.cancelEdit();
       })
       .catch(console.error)
   }
 
-  resetAddClientForm = () => this.setState({ name: '', url: '' });
+  resetAddClientForm = () => this.setState({ name: '', url: '', processingFee: '' });
 
   resetCredentials = () => {
     const name = this.state.editName;
@@ -74,8 +81,8 @@ export default class ClientsView extends Component {
         api.patch(`/clients/${id}/resetCredentials`)
           .then(() => {
             setTimeout(() => {
-              alert('Success. New credentials are available')
-              this.cancelEdit()
+              alert('Success. New credentials are available');
+              this.cancelEdit();
             }, 1000)
           })
           .catch(console.error)
@@ -91,9 +98,9 @@ export default class ClientsView extends Component {
     //   .catch(console.error)
   }
 
-  edit = client => () => this.setState({ editing: true, editName: client.name, editUrl: client.url, editClientId: client.id })
+  edit = client => () => this.setState({ editing: true, editName: client.name, editUrl: client.url, editProcessingFee: client.processingFee, editClientId: client.id })
 
-  cancelEdit = () => this.setState({ editing: false, editName: '', editUrl: '', editClientId: '' })
+  cancelEdit = () => this.setState({ editing: false, editName: '', editUrl: '', editClientId: '', editProcessingFee: '' })
 
   renderClients = clients => clients.map(this.renderClient)
 
@@ -122,9 +129,10 @@ export default class ClientsView extends Component {
         <h6 className="mb-1">{client.url}</h6>
       </td>
       <td>
-        <Button size='sm' variant="info" onClick={this.downloadCredentials(client.id)}>Onboard</Button>
+        <h6 className="mb-1">{client.processingFee && (client.processingFee + '%')}</h6>
       </td>
       <td style={rightAlign}>
+        <Button size='sm' variant="info" onClick={this.downloadCredentials(client.id)}>Onboard</Button>
         <Button size='sm' variant="warning" onClick={this.edit(client)}>Edit</Button>
         <Button size='sm' variant={client.enabled ? 'success' : 'warning'} onClick={this.toggleEnabled(client.id, client.enabled)}>{client.enabled ? 'Enabled' : 'Disabled'}</Button>
         <Button size='sm' variant="danger" onClick={this.deleteClient(client.id, client.name)}>Delete</Button>
@@ -133,7 +141,7 @@ export default class ClientsView extends Component {
   )
 
   render() {
-    const { name, url, clients, editName, editUrl } = this.state;
+    const { name, url, processingFee, clients, editName, editUrl, editProcessingFee } = this.state;
 
     return (
       <div>
@@ -145,17 +153,31 @@ export default class ClientsView extends Component {
               </Card.Header>
               <Card.Body className='px-10 py-10'>
                 <Form onSubmit={this.addClient}>
-                  <Form.Group controlId="formBasicEmail">
+                  <Form.Group controlId="name">
                     <Form.Label>Name</Form.Label>
                     <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter client name" value={name} required />
                   </Form.Group>
-                  <Form.Group controlId="formBasicEmail">
+                  <Form.Group controlId="url">
                     <Form.Label>URL</Form.Label>
-                    <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter client URL" value={url} required />
+                    <InputGroup>
+                      <InputGroup.Prepend>
+                        <InputGroup.Text style={light}>https://</InputGroup.Text>
+                      </InputGroup.Prepend>
+                      <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter client URL" value={url} required />
+                    </InputGroup>
+                  </Form.Group>
+                  <Form.Group controlId="processingFee">
+                    <Form.Label>Processing Fee</Form.Label>
+                    <InputGroup>
+                      <Form.Control onChange={this.updateInput} name='processingFee' type="tel" placeholder="Enter client processing fee" value={processingFee} required />
+                      <InputGroup.Append>
+                        <InputGroup.Text style={light}>%</InputGroup.Text>
+                      </InputGroup.Append>
+                    </InputGroup>
                   </Form.Group>
                   <Button variant="primary" type='submit'>
                     Add Client
-                      </Button>
+                  </Button>
                 </Form>
               </Card.Body>
             </Card>
@@ -171,13 +193,17 @@ export default class ClientsView extends Component {
                 </Card.Header>
                 <Card.Body>
                   <Form onSubmit={this.editClient}>
-                    <Form.Group controlId="formBasicEmail">
+                    <Form.Group controlId="editName">
                       <Form.Label>Name</Form.Label>
                       <Form.Control onChange={this.updateInput} name='editName' type="text" placeholder="Enter client name" value={editName} required />
                     </Form.Group>
-                    <Form.Group controlId="formBasicEmail">
+                    <Form.Group controlId="editUrl">
                       <Form.Label>URL</Form.Label>
                       <Form.Control onChange={this.updateInput} name='editUrl' type="text" placeholder="Enter client URL" value={editUrl} required />
+                    </Form.Group>
+                    <Form.Group controlId="editProcessingFee">
+                      <Form.Label>Processing Fee</Form.Label>
+                      <Form.Control onChange={this.updateInput} name='editProcessingFee' type="tel" placeholder="Enter client processing fee" value={editProcessingFee} required />
                     </Form.Group>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <div>
@@ -211,7 +237,7 @@ export default class ClientsView extends Component {
                     <tr>
                       <th>Name</th>
                       <th>URL</th>
-                      <th></th>
+                      <th>Processing Fee</th>
                       <th></th>
                     </tr>
                   </thead>

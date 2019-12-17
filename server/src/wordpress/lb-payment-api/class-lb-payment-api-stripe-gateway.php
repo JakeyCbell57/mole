@@ -100,7 +100,7 @@ class Payment_Api_Stripe_Gateway {
         $body = json_decode( $response['body'], true );
 
         if(!$body['error']) {
-            return array( 'id' => $token );
+            return array( 'id' => $body['id'] );
 
         } else {
             return array(
@@ -121,6 +121,8 @@ class Payment_Api_Stripe_Gateway {
                 'error'  => $token['error'],
             );
         }
+
+        //token is good, proceed with order
 
         $data = array(
             'amount'    => $params['orderTotal'],
@@ -167,6 +169,36 @@ class Payment_Api_Stripe_Gateway {
                 'error'  => array(
                     'message' => $body['error']['message'],
 					'code' 	  => $body['error']['code']  
+				)
+            );
+        }
+    }
+
+    public static function get_balance() {
+        $args = array(
+            'headers'     => self::get_headers(),
+            'body'        => $data,
+            'method'      => 'GET',
+            'data_format' => 'body',
+        );
+
+        $response = wp_remote_get(self::ENDPOINT . '/balance', $args);
+
+        //wordpress errored for some reason
+        if( is_wp_error( $response ) ) {
+            return array('error' => array('status' => 500));
+        }
+
+        $body = json_decode( $response['body'], true );
+
+        if(!$body['error']) {
+            return $body;
+
+        } else {
+            return array(
+                'error'  => array(
+					'code' => $body['error']['code'],
+					'message' => $body['error']['message']
 				)
             );
         }

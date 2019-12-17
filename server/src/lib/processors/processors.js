@@ -1,8 +1,22 @@
 const database = require('../../database');
 const crypto = require('crypto');
+const ProcessorType = require('./gateways');
+
+const PAYMENT_API_BASE = 'lb-api-restricted';
 
 const table = 'processors';
 const typesTable = 'processor_types';
+
+async function ping(id) {
+  const processor = await getById(id);
+  const type = await getProcessorTypesById(processor.processorType);
+  const url = formatUrl(processor.url, type.codeName);
+  const gateway = ProcessorType(type.codeName);
+  const result = await gateway.ping({ processorId: processor.id, apiKey: processor.apiKey }, url);
+
+  await update(id, { healthy: result });
+  return result;
+}
 
 function getById(id) {
   return database.select().from(table).where('id', id).first();
@@ -41,6 +55,14 @@ function getProcessorTypes() {
   return database.select().from(typesTable);
 }
 
+function getProcessorTypesById(id) {
+  return database.select().from(typesTable).where('id', id).first();
+}
+
+function getGateways(codeName) {
+  return ProcessorType(codeName);
+}
+
 /**
  * Used by load balancer to get balance of enabled processors.
  * 
@@ -51,9 +73,12 @@ async function sortedBalancesPerProcessorSince(lookback) {
   const result = await database.raw(`
     SELECT 
       processors.id,
-      SUM(orders."orderTotal") as balance
+      processors."processorType",
+      processors."apiKey",
+      processors."url",
+      COALESCE(SUM(orders."orderTotal"), 0) as balance
     FROM processors
-    JOIN orders
+    LEFT JOIN orders
       ON orders."processorId" = processors.id
       AND orders."createdAt" > '${fromTime}'
     WHERE processors.enabled = true and processors.archived = false
@@ -92,6 +117,10 @@ function hex(amount) {
   return crypto.randomBytes(amount).toString('hex');
 }
 
+function formatUrl(url, type) {
+  return 'https://' + url.replace(/(^http:\/\/|^https:\/\/)/, '').replace(/\/+$/, '') + `/wp-json/${PAYMENT_API_BASE}/${type}`;
+}
+
 module.exports = {
   getById,
   save,
@@ -102,5 +131,8 @@ module.exports = {
   setEnabled,
   getProcessorTypes,
   sortedBalancesPerProcessorSince,
-  sortedBalancesPerProcessorInRange
+  sortedBalancesPerProcessorInRange,
+  formatUrl,
+  ping,
+  getGateways
 };

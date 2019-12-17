@@ -7,11 +7,11 @@ function getByClientKey(clientKey) {
   return database.select().from(table).where('clientKey', clientKey).first();
 }
 
-function save(name, url) {
+function save(name, url, processingFee) {
   const clientKey = generateKey();
   const clientSecret = generateSecret();
 
-  return database.insert({ name, url, clientKey, clientSecret }).into(table);
+  return database.insert({ name, url, processingFee, clientKey, clientSecret }).into(table);
 }
 
 function setEnabled(id, enabled) {

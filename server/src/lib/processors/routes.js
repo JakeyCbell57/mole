@@ -27,6 +27,18 @@ router.get('/processors/metrics', async (req, res, next) => {
   }
 })
 
+router.get('/processors/:id/ping', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await Processors.ping(id);
+
+    res.json(result);
+    
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.get('/processors/types', async (req, res, next) => {
   try {
     const processorTypes = await Processors.getProcessorTypes()
