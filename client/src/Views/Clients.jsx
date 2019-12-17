@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Row, Col, Card, Table, Form, Button} from 'react-bootstrap';
+import { Row, Col, Card, Table, Form, Button } from 'react-bootstrap';
 import api from '../api';
 import { Collapse } from 'react-collapse';
 
@@ -47,7 +47,6 @@ export default class ClientsView extends Component {
   editClient = (e) => {
     e.preventDefault();
     const { editClientId, editName, editUrl } = this.state;
-
     api.patch(`/clients/${editClientId}`, { name: editName, url: editUrl })
       .then(() => {
         this.cancelEdit()
@@ -62,10 +61,10 @@ export default class ClientsView extends Component {
 
     const confirmed = window.confirm(`DANGER: Are you sure you want to reset the credentials for ${name}?\nTheir previous credentials will become useless. \nThis cannot be undone.`)
 
-    if(confirmed) {
+    if (confirmed) {
       const doubleConfirmed = window.confirm('Are you really sure? They wont be able to process sales until they update their credentials.')
 
-      if(doubleConfirmed) {
+      if (doubleConfirmed) {
         api.patch(`/clients/${id}/resetCredentials`)
           .then(() => {
             setTimeout(() => {
@@ -79,11 +78,11 @@ export default class ClientsView extends Component {
   }
 
   downloadCredentials = clientId => {
-    // api.post(`/clients/${clientId}/onboard`, { url: window.location.hostname })
-    //   .then(response => {
-
-    //   })
-    //   .catch(console.error)
+    api.post(`/clients/${clientId}/onboard`, { url: window.location.hostname })
+      .then(response => {
+        alert(response)
+      })
+      .catch(console.error)
   }
 
   edit = client => () => this.setState({ editing: true, editName: client.name, editUrl: client.url, editClientId: client.id })
@@ -95,7 +94,7 @@ export default class ClientsView extends Component {
   deleteClient = (id, name) => () => {
     const confirmed = window.confirm('Are you sure you want to delete client ' + name + '?')
 
-    if(confirmed) {
+    if (confirmed) {
       api.delete(`/clients/${id}`)
         .then(this.getData)
         .catch(console.error)
@@ -111,10 +110,10 @@ export default class ClientsView extends Component {
   renderClient = client => (
     <tr key={client.userId} className="unread">
       <td>
-          <h6 className="mb-1">{client.name}</h6>
+        <h6 className="mb-1">{client.name}</h6>
       </td>
       <td>
-          <h6 className="mb-1">{client.url}</h6>
+        <h6 className="mb-1">{client.url}</h6>
       </td>
       <td>
         <Button size='sm' variant="info" onClick={this.downloadCredentials(client.id)}>Onboard</Button>
@@ -135,24 +134,24 @@ export default class ClientsView extends Component {
         <Row>
           <Col xs={12} sm={12} md={6} lg={6} xl={6}>
             <Card className='Recent-Users'>
-                <Card.Header>
-                  <Card.Title as='h5'>Add Client</Card.Title>
-                </Card.Header>
-                <Card.Body className='px-10 py-10'>
-                    <Form onSubmit={this.addClient}>
-                      <Form.Group controlId="formBasicEmail">
-                          <Form.Label>Name</Form.Label>
-                          <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter client name" value={name} required/>
-                      </Form.Group>
-                      <Form.Group controlId="formBasicEmail">
-                          <Form.Label>URL</Form.Label>
-                          <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter client URL" value={url} required/>
-                      </Form.Group>
-                        <Button variant="primary" type='submit'>
-                          Add Client
+              <Card.Header>
+                <Card.Title as='h5'>Add Client</Card.Title>
+              </Card.Header>
+              <Card.Body className='px-10 py-10'>
+                <Form onSubmit={this.addClient}>
+                  <Form.Group controlId="formBasicEmail">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control onChange={this.updateInput} name='name' type="text" placeholder="Enter client name" value={name} required />
+                  </Form.Group>
+                  <Form.Group controlId="formBasicEmail">
+                    <Form.Label>URL</Form.Label>
+                    <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter client URL" value={url} required />
+                  </Form.Group>
+                  <Button variant="primary" type='submit'>
+                    Add Client
                       </Button>
-                    </Form>
-                </Card.Body>
+                </Form>
+              </Card.Body>
             </Card>
           </Col>
         </Row>
@@ -165,20 +164,20 @@ export default class ClientsView extends Component {
             <Card.Body>
               <Form onSubmit={this.editClient}>
                 <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control onChange={this.updateInput} name='editName' type="text" placeholder="Enter client name" value={editName} required/>
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control onChange={this.updateInput} name='editName' type="text" placeholder="Enter client name" value={editName} required />
                 </Form.Group>
                 <Form.Group controlId="formBasicEmail">
-                    <Form.Label>URL</Form.Label>
-                    <Form.Control onChange={this.updateInput} name='editUrl' type="text" placeholder="Enter client URL" value={editUrl} required/>
-                </Form.Group>                 
-                <div style={{ display: 'flex', justifyContent: 'space-between'}}>
+                  <Form.Label>URL</Form.Label>
+                  <Form.Control onChange={this.updateInput} name='editUrl' type="text" placeholder="Enter client URL" value={editUrl} required />
+                </Form.Group>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <div>
                     <Button variant="primary" type='submit'>
-                        Edit Client
+                      Edit Client
                     </Button>
                     <Button variant="warning" onClick={this.cancelEdit}>
-                        Cancel
+                      Cancel
                     </Button>
                   </div>
                   <Button variant='danger' onClick={this.resetCredentials}>
@@ -193,24 +192,24 @@ export default class ClientsView extends Component {
         <Row>
           <Col md={12} lg={12} xl={12}>
             <Card className='Recent-Users'>
-                <Card.Header>
-                    <Card.Title as='h5'>Current Clients</Card.Title>
-                </Card.Header>
-                <Card.Body className='px-0 py-0'>
-                    <Table responsive hover>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>URL</th>
-                          <th></th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                        <tbody>
-                          { this.renderClients(clients) }
-                        </tbody>
-                    </Table>
-                </Card.Body>
+              <Card.Header>
+                <Card.Title as='h5'>Current Clients</Card.Title>
+              </Card.Header>
+              <Card.Body className='px-0 py-0'>
+                <Table responsive hover>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>URL</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.renderClients(clients)}
+                  </tbody>
+                </Table>
+              </Card.Body>
             </Card>
           </Col>
         </Row>

@@ -1,5 +1,7 @@
 const database = require('../../database');
 const crypto = require('crypto');
+const fs = require('fs')
+const archiver = require('archiver')
 
 const table = 'clients';
 
@@ -35,11 +37,38 @@ function resetCredentials(id) {
   const clientKey = generateKey();
   const clientSecret = generateSecret();
 
-  return database(table).where('id', id).update({clientKey, clientSecret})
+  return database(table).where('id', id).update({ clientKey, clientSecret })
 }
 
 function generateKey() {
   return hex(4) + '-' + hex(16);
+}
+
+function getTextFile(id) {
+  return database.select().from(table).where('id', id).first();
+}
+function createTextFile(data) {
+  let text = "ClientKey " + data.clientKey + "\n" + "ClientSecret" + data.clientSecret
+
+  const txtfile = fs.writeFile("server/src/temp/ClientInfo.txt", text, (err) => {
+    return txtfile;
+    if (err) { throw err }
+  });
+}
+function createZipFile(data) {
+  let archive = archiver('zip', {
+    gzip: true,
+    zlib: { level: 9 }
+  })
+  let output = "server/src/temp/onboard.zip"
+
+  archive.pipe(output)
+  archive.file(data);
+  archive.file('server/src/wordpress/custom-lb-payment-api.zip')
+  archive.finalize();
+
+  //https://stackoverflow.com/questions/18142129/how-to-convert-multiple-files-to-compressed-zip-file-using-node-js
+
 }
 
 function generateSecret() {
@@ -79,5 +108,8 @@ module.exports = {
   setEnabled,
   sortedBalancesPerClientInRange,
   update,
-  resetCredentials
+  resetCredentials,
+  getTextFile,
+  createTextFile,
+  createZipFile
 };
