@@ -51,7 +51,7 @@ async function sortedBalancesPerProcessorSince(lookback) {
   const result = await database.raw(`
     SELECT 
       processors.id,
-      SUM(orders."orderTotal") as balance,
+      SUM(orders."orderTotal") as balance
     FROM processors
     JOIN orders
       ON orders."processorId" = processors.id

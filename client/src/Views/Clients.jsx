@@ -40,7 +40,10 @@ export default class ClientsView extends Component {
     const { name, url } = this.state;
 
     api.post('/clients', { name, url })
-      .then(this.getData)
+      .then(() => {
+        this.getData()
+        this.resetAddClientForm()
+      })
       .catch(console.error)
   }
 
@@ -55,6 +58,8 @@ export default class ClientsView extends Component {
       })
       .catch(console.error)
   }
+
+  resetAddClientForm = () => this.setState({ name: '', url: '' });
 
   resetCredentials = () => {
     const name = this.state.editName;

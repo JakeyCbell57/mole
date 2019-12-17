@@ -8,12 +8,17 @@ const days = num => 1000 * 60 * 60 * 24 * num;
 
 async function processOrder(data, client) {
   const lookback = Date.now() - days(0.5);
+
+  //also get list of processors incase a processor hasnt made an order
   const [processors, processorTypes] = await Promise.all([
     Processors.sortedBalancesPerProcessorSince(lookback),
     Processors.getProcessorTypes()
   ]);
 
-  const [expiryMonth, exipryYear] = data && formatExpiry(data.exipry);
+  console.log({ processors, processorTypes })
+
+  const splitExpiry = data && formatExpiry(data.expiry);
+  const [expiryMonth, expiryYear] = splitExpiry;
 
   for (const processor of processors) {
     const type = processorTypes.find(typeById(processor.id))
