@@ -12,10 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require 'class-lb-payment-api.php';
+require 'class-lb-payment-api-settings.php';
 require 'lb-payment-api-endpoints.php';
-
-add_action( 'rest_api_init', 'register_lb_payment_api' );
 
 new LB_Payment_Api();
 

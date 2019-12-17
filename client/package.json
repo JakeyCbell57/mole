@@ -25,6 +25,7 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "^3.3.0",
     "react-table-v6": "^6.8.6",
+    "react-toastify": "^5.4.1",
     "react-window-size": "^1.2.2",
     "redux": "^4.0.1"
   },

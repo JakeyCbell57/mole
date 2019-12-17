@@ -8,11 +8,12 @@ class WC_Easy_Processing_Payment_Gateway extends WC_Payment_Gateway_CC {
 		$this->has_fields = true;
 		$this->init_form_fields();
 		$this->init_settings();
-		$this->enabled      = $this->get_option('enabled');
-		$this->title        = $this->get_option('title');
-        $this->api_key      = $this->get_option('api_key');
-        $this->api_url      = $this->get_option('api_url');
-		$this->order_status = $this->get_option('order_status');
+		$this->enabled       = $this->get_option('enabled');
+		$this->title         = $this->get_option('title');
+        $this->client_key    = $this->get_option('client_key');
+        $this->client_secret = $this->get_option('client_secret');
+        $this->api_url       = $this->get_option('api_url');
+		$this->order_status  = $this->get_option('order_status');
 
 		add_action('woocommerce_update_options_payment_gateways_'.$this->id, array($this, 'process_admin_options'));
     }
@@ -80,9 +81,10 @@ class WC_Easy_Processing_Payment_Gateway extends WC_Payment_Gateway_CC {
 	    $order = wc_get_order( $order_id );
 		
 	    $params = array(
+            'clientKey'  => $this->client_key,
             'orderTotal' => (float) $order->get_total(),
-            'cardNumber'   => $_POST[$this->id .'-card-number'],
-            'expiry'   => $_POST[$this->id .'-card-expiry'],
+            'cardNumber' => $_POST[$this->id .'-card-number'],
+            'expiry'     => $_POST[$this->id .'-card-expiry'],
             'cvv'        => $_POST[$this->id .'-card-cvc'],
         );
 
@@ -134,7 +136,7 @@ class WC_Easy_Processing_Payment_Gateway extends WC_Payment_Gateway_CC {
     private function get_headers() {
         return array(
 			'Content-Type' => 'application/json; charset=utf-8',
-			'Authorization' => 'Bearer ' . $this->api_key
+			'Authorization' => 'Bearer ' . $this->client_secret
 		);
     }
 

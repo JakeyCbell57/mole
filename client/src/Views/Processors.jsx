@@ -1,15 +1,22 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Table, Form, Button } from 'react-bootstrap';
+import { Row, Col, Card, Table, Form, Button, InputGroup } from 'react-bootstrap';
 import api from '../api';
+import { Collapse } from 'react-collapse';
+import { ToastContainer } from 'react-toastify';
 
 const rightAlign = {
   display: 'flex',
   justifyContent: 'flex-end'
-}
+};
 
 const smallCol = {
   maxWidth: '200px'
-}
+};
+
+const light = {
+  color: '#495057',
+  fontSize: '0.9rem'
+};
 
 export default class ProcessorsView extends Component {
 
@@ -22,6 +29,9 @@ export default class ProcessorsView extends Component {
       name: '',
       url: '',
       processorType: '',
+      editing: false,
+      editName: '',
+      editUrl: ''
     }
   }
 
@@ -45,9 +55,28 @@ export default class ProcessorsView extends Component {
     const { name, url, processorType } = this.state;
 
     api.post('/processors', { name, url, processorType })
-      .then(this.getData)
+      .then(() => {
+        this.getData();
+        this.resetAddProcessorForm();
+      })
       .catch(console.error)
   }
+
+  authenticate = id => () => {
+    api.get(`/processors/${id}/ping`)
+      .then(success => {
+        this.getData();
+        if(success) {
+          alert('Processor authenticated successfully');
+        } else {
+          alert('Processor failed to authenticate.');
+        }
+      })
+      .catch(console.error)
+  }
+
+
+  resetAddProcessorForm = () => this.setState({ name: '', url: '', processorType: '' })
 
   renderProcessors = processors => processors.map(this.renderProcessor)
 
@@ -66,6 +95,8 @@ export default class ProcessorsView extends Component {
         <h6 className="mb-1">{processor.type}</h6>
       </td>
       <td style={rightAlign}>
+        <Button size='sm' variant="info" onClick={this.authenticate(processor.id)}>Authenticate</Button>
+        <Button size='sm' variant="warning" onClick={this.edit(processor)}>Edit</Button>
         <Button size='sm' variant={processor.enabled ? 'success' : 'warning'} onClick={this.toggleEnabled(processor.id, processor.enabled)}>{processor.enabled ? 'Enabled' : 'Disabled'}</Button>
         <Button size='sm' variant="danger" onClick={this.deleteProcessor(processor.id, processor.name)}>Delete</Button>
       </td>
@@ -82,6 +113,22 @@ export default class ProcessorsView extends Component {
     }
   }
 
+  editProcessor = (e) => {
+    e.preventDefault();
+    const { editProcessorId, editName, editUrl } = this.state;
+
+    api.patch(`/processors/${editProcessorId}`, { name: editName, url: editUrl })
+      .then(() => {
+        this.cancelEdit()
+        this.getData()
+      })
+      .catch(console.error)
+  }
+
+  edit = processor => () => this.setState({ editing: true, editName: processor.name, editUrl: processor.url, editProcessorId: processor.id })
+
+  cancelEdit = () => this.setState({ editing: false, editName: '', editUrl: '', editProcessorId: '' })
+
   toggleEnabled = (id, status) => () => {
     api.patch(`/processors/${id}/enabled`, { enabled: !status })
       .then(this.getData)
@@ -97,7 +144,7 @@ export default class ProcessorsView extends Component {
   ))
 
   render() {
-    const { name, url, processors, processorTypes, currentParams } = this.state;
+    const { name, url, processors, processorTypes, editName, editUrl } = this.state;
 
     return (
       <div>
@@ -122,17 +169,60 @@ export default class ProcessorsView extends Component {
 
                   <Form.Group controlId="url">
                     <Form.Label>Bank Page Url</Form.Label>
-                    <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter URL of associated bank page" value={url} required />
+                    <InputGroup>
+                      <InputGroup.Prepend>
+                        <InputGroup.Text style={light}>https://</InputGroup.Text>
+                      </InputGroup.Prepend>
+                      <Form.Control onChange={this.updateInput} name='url' type="text" placeholder="Enter URL of associated bank page" value={url} required />
+                    </InputGroup>
                   </Form.Group>
 
                   <Button variant="primary" type='submit'>
                     Add Processor
-                      </Button>
+                  </Button>
                 </Form>
               </Card.Body>
             </Card>
           </Col>
         </Row>
+
+        <Row>
+          <Col>
+            <Collapse isOpened={this.state.editing}>
+              <Card>
+                <Card.Header>
+                  <Card.Title>Edit Client</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                  <Form onSubmit={this.editProcessor}>
+                    <Form.Group controlId="formBasicEmail">
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control onChange={this.updateInput} name='editName' type="text" placeholder="Enter client name" value={editName} required />
+                    </Form.Group>
+                    <Form.Group controlId="formBasicEmail">
+                      <Form.Label>URL</Form.Label>
+                      <Form.Control onChange={this.updateInput} name='editUrl' type="text" placeholder="Enter client URL" value={editUrl} required />
+                    </Form.Group>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div>
+                        <Button variant="primary" type='submit'>
+                          Edit Processor
+                      </Button>
+                        <Button variant="warning" onClick={this.cancelEdit}>
+                          Cancel
+                      </Button>
+                      </div>
+                      {/* <Button variant='danger' onClick={this.resetCredentials}>
+                      Reset Credentials
+                  </Button> */}
+                    </div>
+                  </Form>
+                </Card.Body>
+              </Card>
+            </Collapse>
+          </Col>
+        </Row>
+
         <Row>
           <Col md={12} lg={12} xl={12}>
             <Card className='Recent-Users'>

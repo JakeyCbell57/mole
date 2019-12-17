@@ -4998,4 +4998,3 @@ insert into orders ("orderId", "orderTotal", "clientId", "processorId", "created
 insert into orders ("orderId", "orderTotal", "clientId", "processorId", "createdAt") values ('49969-001', 140.11, 1, 4, '1581750050000');
 insert into orders ("orderId", "orderTotal", "clientId", "processorId", "createdAt") values ('58407-025', 289.86, 2, 3, '1582555596000');
 insert into orders ("orderId", "orderTotal", "clientId", "processorId", "createdAt") values ('62171-030', 553.49, 4, 3, '1582727272000');
-update orders set "processingFee" = "orderTotal" * 0.02;

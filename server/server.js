@@ -1,9 +1,9 @@
 // if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config()
+require('dotenv').config()
 // }
 
-require('./src/schedule');
-require('./src/telegram');
+// require('./src/schedule');
+// require('./src/telegram');
 
 const express = require('express');
 const path = require('path');
@@ -83,7 +83,7 @@ server.use(auth.passport.session());
 
 server.use(auth.routes);
 
-if(process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
   server.use('/*', isAuthenticated, (req, res) => {
     res.sendFile('index.html', { root: '../client/build' });
   });

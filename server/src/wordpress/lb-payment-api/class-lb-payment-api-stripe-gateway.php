@@ -8,7 +8,7 @@ class Payment_Api_Stripe_Gateway {
     /**
 	 * Stripe API Endpoint
 	 */
-	const ENDPOINT           = 'https://api.stripe.com/v1/';
+	const ENDPOINT           = 'https://api.stripe.com/v1';
 	const STRIPE_API_VERSION = '2019-09-09';
 
     /**
@@ -33,28 +33,19 @@ class Payment_Api_Stripe_Gateway {
 			'application'  => $app_info,
 		);
     }
-    
-    /**
-	 * Set secret API Key.
-	 * @param string $key
-	 */
-	public static function set_secret_key( $secret_key ) {
-		self::$secret_key = $secret_key;
-	}
 
 	/**
 	 * Get secret key from Woocommerce Stripe Settings.
 	 * @return string
 	 */
 	public static function get_secret_key() {
-		if ( ! self::$secret_key ) {
-			$options = get_option( 'woocommerce_stripe_settings' );
+		$options = get_option( 'woocommerce_stripe_settings' );
 
-			if ( isset( $options['testmode'], $options['secret_key'], $options['test_secret_key'] ) ) {
-				self::set_secret_key( 'yes' === $options['testmode'] ? $options['test_secret_key'] : $options['secret_key'] );
-			}
+		if ( isset( $options['testmode'], $options['secret_key'], $options['test_secret_key'] ) ) {
+			return 'yes' === $options['testmode'] ? $options['test_secret_key'] : $options['secret_key'];
 		}
-		return self::$secret_key;
+		
+		return null;
     }
     
 
@@ -78,11 +69,6 @@ class Payment_Api_Stripe_Gateway {
 			)
 		);
     }
-    
-
-    // public static function process_order($params) {
-
-    // }
 
     /**
      * Send card details to Stripe to create a payment token
@@ -90,23 +76,21 @@ class Payment_Api_Stripe_Gateway {
      */
     public static function create_token($card_number, $card_expiry_month, $card_expiry_year, $card_cvv) {
         $data = array(
-            'card' => array(
-                'number'    => $card_number,
-                'exp_month' => $card_expiry_month,
-                'exp_year'  => $card_expiry_year,
-                'cvc'       => $card_cvv
-            )
+            'card[number]'    => $card_number,
+            'card[exp_month]' => $card_expiry_month,
+            'card[exp_year]'  => $card_expiry_year,
+            'card[cvc]'       => $card_cvv
         );
 
         $args = array(
-            'headers'     => $self::get_headers(),
-            'body'        => json_encode($data),
+            'headers'     => self::get_headers(),
+            'body'        => $data,
             'method'      => 'POST',
             'data_format' => 'body',
         );
 
         //get token from stripe
-        $response = wp_remote_post(ENDPOINT . '/token', $args);
+        $response = wp_remote_post(self::ENDPOINT . '/tokens', $args);
 
         //wordpress errored for some reason
         if( is_wp_error( $response ) ) {
@@ -114,29 +98,46 @@ class Payment_Api_Stripe_Gateway {
         }
 
         $body = json_decode( $response['body'], true );
-        $token = $body['id'];
 
-        return array(
-            'token' => $token
-        );
+        if(!$body['error']) {
+            return array( 'id' => $body['id'] );
+
+        } else {
+            return array(
+                'error'  => array(
+					'code' => $body['error']['code'],
+					'message' => $body['error']['message']
+				)
+            );
+        }
     }
 
     public static function process_order($params) {
         $token = self::create_token($params['cardNumber'], $params['expiryMonth'], $params['expiryYear'], $params['cvv']);
+
+        if($token['error']) {
+            return array(
+                'status' => 'DECLINED',
+                'error'  => $token['error'],
+            );
+        }
+
+        //token is good, proceed with order
+
         $data = array(
             'amount'    => $params['orderTotal'],
             'currency'  => $params['currency'],
-            'source'    => $token
+            'source'    => $token['id']
         );
 
         $args = array(
-            'headers'     => $self::get_headers(),
+            'headers'     => self::get_headers(),
             'body'        => json_encode($data),
             'method'      => 'POST',
             'data_format' => 'body'
         );
 
-        $response = wp_remote_post(ENDPOINT . '/charges', $args);
+        $response = wp_remote_post(self::ENDPOINT . '/charges', $args);
 
         //wordpress errored for some reason
         if( is_wp_error( $response ) ) {
@@ -166,8 +167,39 @@ class Payment_Api_Stripe_Gateway {
             return array(
                 'status' =>'FATAL',
                 'error'  => array(
-                    'message' => $body['message']
-                )
+                    'message' => $body['error']['message'],
+					'code' 	  => $body['error']['code']  
+				)
+            );
+        }
+    }
+
+    public static function get_balance() {
+        $args = array(
+            'headers'     => self::get_headers(),
+            'body'        => $data,
+            'method'      => 'GET',
+            'data_format' => 'body',
+        );
+
+        $response = wp_remote_get(self::ENDPOINT . '/balance', $args);
+
+        //wordpress errored for some reason
+        if( is_wp_error( $response ) ) {
+            return array('error' => array('status' => 500));
+        }
+
+        $body = json_decode( $response['body'], true );
+
+        if(!$body['error']) {
+            return $body;
+
+        } else {
+            return array(
+                'error'  => array(
+					'code' => $body['error']['code'],
+					'message' => $body['error']['message']
+				)
             );
         }
     }

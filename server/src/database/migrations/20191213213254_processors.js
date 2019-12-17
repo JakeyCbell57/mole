@@ -4,7 +4,6 @@ exports.up = async function (knex) {
     table.increments('id')
     table.string('name')
     table.string('codeName')
-    table.specificType('parameters', 'VARCHAR[]')
   })
 
   await knex.schema.createTable('processors', table => {

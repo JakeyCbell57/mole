@@ -36,9 +36,13 @@ function getAllSince(start) {
     .orderBy('createdAt', 'desc')
 }
 
+function save(data) {
+  return database.insert(data).into(table);
+}
 
 module.exports = {
   getByClientId,
   getAllInRange,
-  getAllSince
+  getAllSince,
+  save
 };
