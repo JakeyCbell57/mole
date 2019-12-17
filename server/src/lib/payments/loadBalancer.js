@@ -2,11 +2,11 @@ const ProcessorTypes = require('../processors/types');
 const ResponseCodes = require('./responses');
 const { Orders, Clients, Processors } = require('../');
 
-const ENDPOINT_BASE = '/custom';
+const ENDPOINT_BASE = 'payment-processor';
 
 const days = num => 1000 * 60 * 60 * 24 * num;
 
-async function processOrder(data) {
+async function processOrder(data, client) {
   const lookback = Date.now() - days(0.5);
   const [processors, processorTypes] = await Promise.all([
     Processors.sortedBalancesPerProcessorSince(lookback),
@@ -24,7 +24,7 @@ async function processOrder(data) {
     const order = await safelyProcessOrder({ ...data, exipryMonth, expiryYear, apiKey }, gateway, url);
 
     if (order.status !== ResponseCodes.FATAL) {
-      saveSuccessful(order, data, processor.id);
+      saveSuccessful(order, data, client, processor.id);
       return order;
     }
   }
@@ -36,10 +36,9 @@ async function processOrder(data) {
   }
 }
 
-async function saveSuccessful(order, data, processorId) {
+async function saveSuccessful(order, data, client, processorId) {
   if (order && order.status === ResponseCodes.APPROVED) {
     try {
-      const client = await Clients.getByClientKey(data.clientKey);
       await Orders.save({
         clientId: client.id,
         processorId,
@@ -68,7 +67,7 @@ async function safelyProcessOrder(data, gateway, url) {
 }
 
 function formatUrl(url, type) {
-  return url.replace(/(^http:\/\/|^https:\/\/)/, 'https://').replace(/\/+$/, '') + `${ENDPOINT_BASE}/${type}`;
+  return url.replace(/(^http:\/\/|^https:\/\/)/, 'https://').replace(/\/+$/, '') + `/wp-json/${ENDPOINT_BASE}/${type}`;
 }
 
 function formatExpiry(expiry) {

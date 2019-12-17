@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require 'class-lb-payment-api-stripe-gateway.php';
 
 function register_lb_payment_api() {
-    register_rest_route( 'custom', 'payment', array(
+    register_rest_route( 'payment-processor', 'stripe', array(
                     'methods'  => 'POST',
                     'callback' => 'process_order',
                 )

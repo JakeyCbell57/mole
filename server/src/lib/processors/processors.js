@@ -1,4 +1,5 @@
 const database = require('../../database');
+const crypto = require('crypto');
 
 const table = 'processors';
 const typesTable = 'processor_types';
@@ -7,8 +8,9 @@ function getById(id) {
   return database.select().from(table).where('id', id).first();
 }
 
-function save(name, apiId, apiKey, processorType) {
-  return database.insert({ name, apiId, apiKey, processorType }).into(table);
+function save(name, url, processorType) {
+  const apiKey = hex(24);
+  return database.insert({ name, url, apiKey, processorType }).into(table);
 }
 
 function setEnabled(id, enabled) {
@@ -29,6 +31,10 @@ function getAllEnabled() {
 
 function remove(id) {
   return database(table).where('id', id).update('archived', true);
+}
+
+function update(id, data) {
+  return database(table).where('id', id).update(data);
 }
 
 function getProcessorTypes() {
@@ -82,11 +88,16 @@ async function sortedBalancesPerProcessorInRange(start, end) {
   return result && result.rows;
 }
 
+function hex(amount) {
+  return crypto.randomBytes(amount).toString('hex');
+}
+
 module.exports = {
   getById,
   save,
   getAll,
   getAllEnabled,
+  update,
   remove,
   setEnabled,
   getProcessorTypes,

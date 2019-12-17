@@ -27,7 +27,7 @@ router.post('/payment', async (req, res, next) => {
   }
 
   try {
-    const order = await loadBalancer.processOrder(req.body);
+    const order = await loadBalancer.processOrder(req.body, client);
     res.json(order);
 
   } catch (err) {
