@@ -1,3 +1,3 @@
-ClientKey: 1
-ClientSecret: 1
+ClientKey: 9dc0d129-e36b81cb7754e61663cc508221a20d1a6e9d72b85f7d96ff
+ClientSecret: 38612790263db835b90021a2464f205abdd0d75c13335c83
 FROM URL: localhost

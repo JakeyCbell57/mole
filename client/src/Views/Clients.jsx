@@ -89,9 +89,8 @@ export default class ClientsView extends Component {
     }
   }
 
-  downloadCredentials = () => {
-    const clientId = this.state.editClientId;
-    api.post(`/clients/${clientId}/onboard`, { url: window.location.hostname })
+  downloadCredentials = id => () => {
+    api.post(`/clients/${id}/onboard`, { url: window.location.hostname })
       .then(response => {
 
       })
