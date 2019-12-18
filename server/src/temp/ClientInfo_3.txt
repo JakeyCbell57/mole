@@ -1,3 +1,0 @@
-ClientKey: 3
-ClientSecret: 3
-FROM URL: localhost

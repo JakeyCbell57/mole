@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Clients = require('./clients');
 
+
 router.get('/clients', async (req, res, next) => {
   try {
     const clients = await Clients.getAll()
@@ -83,10 +84,9 @@ router.post('/clients/:id/onboard', async (req, res, next) => {
 
     const textfile = await Clients.getTextFile(id);
     const createFile = await Clients.createTextFile(textfile, id, url);
-
     const createZip = await Clients.createZipFile(id);
+
     return res.send(createZip)
-    //res.end();
 
   } catch (err) {
     next(err)

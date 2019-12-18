@@ -93,6 +93,9 @@ export default class ClientsView extends Component {
     api.post(`/clients/${id}/onboard`, { url: window.location.hostname })
       .then(response => {
 
+        //stackoverflow.com/questions/51993596/post-request-that-returns-a-download-file
+
+
       })
       .catch(console.error)
   }
@@ -132,6 +135,7 @@ export default class ClientsView extends Component {
       </td>
       <td style={rightAlign}>
         <Button size='sm' variant="info" onClick={this.downloadCredentials(client.id)}>Onboard</Button>
+
         <Button size='sm' variant="warning" onClick={this.edit(client)}>Edit</Button>
         <Button size='sm' variant={client.enabled ? 'success' : 'warning'} onClick={this.toggleEnabled(client.id, client.enabled)}>{client.enabled ? 'Enabled' : 'Disabled'}</Button>
         <Button size='sm' variant="danger" onClick={this.deleteClient(client.id, client.name)}>Delete</Button>
